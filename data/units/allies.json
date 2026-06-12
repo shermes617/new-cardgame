@@ -1,0 +1,50 @@
+[
+  {
+    "id": "arthur",
+    "name_key": "UNIT_ARTHUR_NAME",
+    "job_key": "JOB_WARRIOR_NAME",
+    "side": "ally",
+    "position": 1,
+    "strength": 12,
+    "will": 6,
+    "max_hp": 30,
+    "speed": 4,
+    "portrait_path": "res://image/Allied character/亚瑟.png"
+  },
+  {
+    "id": "berin",
+    "name_key": "UNIT_BERIN_NAME",
+    "job_key": "JOB_TANK_NAME",
+    "side": "ally",
+    "position": 2,
+    "strength": 8,
+    "will": 10,
+    "max_hp": 35,
+    "speed": 3,
+    "portrait_path": "res://image/Allied character/贝琳.png"
+  },
+  {
+    "id": "chloe",
+    "name_key": "UNIT_CHLOE_NAME",
+    "job_key": "JOB_ARCHER_NAME",
+    "side": "ally",
+    "position": 3,
+    "strength": 10,
+    "will": 6,
+    "max_hp": 25,
+    "speed": 5,
+    "portrait_path": "res://image/Allied character/克洛伊.png"
+  },
+  {
+    "id": "lia",
+    "name_key": "UNIT_LIA_NAME",
+    "job_key": "JOB_SUPPORT_NAME",
+    "side": "ally",
+    "position": 4,
+    "strength": 6,
+    "will": 12,
+    "max_hp": 28,
+    "speed": 4,
+    "portrait_path": "res://image/Allied character/莉雅.png"
+  }
+]

@@ -1,0 +1,65 @@
+key,en
+UNIT_ARTHUR_NAME,Arthur
+UNIT_BERIN_NAME,Berin
+UNIT_CHLOE_NAME,Chloe
+UNIT_LIA_NAME,Lia
+UNIT_RIFT_BUG_NAME,Rift Bug
+UNIT_VINE_BEAST_NAME,Vine Beast
+UNIT_TIDE_CRAB_NAME,Tide Crab
+UNIT_RUIN_SKELETON_NAME,Ruin Skeleton
+JOB_WARRIOR_NAME,Warrior
+JOB_TANK_NAME,Tank
+JOB_ARCHER_NAME,Archer
+JOB_SUPPORT_NAME,Support
+ENEMY_TYPE_NORMAL_NAME,Normal Enemy
+ENEMY_TYPE_DEFENDER_NAME,Defender Enemy
+CARD_STRIKE_NAME,Strike
+CARD_STRIKE_DESC,Deal 100% Strength damage to one enemy
+CARD_DEFEND_NAME,Defend
+CARD_DEFEND_DESC,Grant one ally a shield equal to 100% Will
+CARD_QUICK_STRIKE_NAME,Quick Strike
+CARD_QUICK_STRIKE_DESC,Deal 100% Strength damage to one enemy
+CARD_HEAVY_STRIKE_NAME,Heavy Strike
+CARD_HEAVY_STRIKE_DESC,Deal 150% Strength damage to one enemy
+CARD_WHIRLWIND_SLASH_NAME,Whirlwind Slash
+CARD_WHIRLWIND_SLASH_DESC,Deal 80% Strength damage to all enemies
+CARD_QUICK_DEFENSE_NAME,Quick Defense
+CARD_QUICK_DEFENSE_DESC,Grant one ally a shield equal to 100% Will
+CARD_HEAVY_DEFENSE_NAME,Heavy Defense
+CARD_HEAVY_DEFENSE_DESC,Grant one ally a shield equal to 140% Will
+CARD_GROUP_DEFENSE_NAME,Group Defense
+CARD_GROUP_DEFENSE_DESC,Grant all allies shields equal to 80% Will
+CARD_HEALING_LIGHT_NAME,Healing Light
+CARD_HEALING_LIGHT_DESC,Heal one ally for 70% Will
+CARD_DRAW_TACTICS_NAME,Draw Tactics
+CARD_DRAW_TACTICS_DESC,Draw 2 cards
+CARD_ENERGY_SUPPLY_NAME,Energy Supply
+CARD_ENERGY_SUPPLY_DESC,Gain 2 energy after 6 time
+CARD_IRON_WAVE_NAME,Iron Wave
+CARD_IRON_WAVE_DESC,Deal 100% Strength damage and gain shield from health damage dealt
+UI_CURRENT_TIME,Current Time
+UI_ENERGY,Energy
+UI_DRAW_PILE,Draw Pile
+UI_DISCARD_PILE,Discard Pile
+UI_ALLIES,Allies
+UI_ENEMIES,Enemies
+UI_HP,HP
+UI_SHIELD,Shield
+UI_ACTION_TIME,Action Time
+UI_COST,Cost
+UI_CHARGE,Charge
+UI_OVERLOAD,Overload
+UI_SHIELD_SHORT,Shield
+UI_TIME_SHORT,Time
+UI_CURRENT_ACTOR,Current Actor
+UI_BASIC_ATTACK,Basic Attack
+UI_CHOOSE_ACTION,Choose Basic Attack or a card
+UI_SELECTED_ACTION,Selected Action
+UI_ACTION_REQUEST_READY,Action request ready (not executed)
+UI_CANCEL,Cancel
+UI_SELECT,Select
+UI_SELECTED,Selected
+UI_SELECT_TARGET,Select Target
+UI_CHOOSE_ACTOR,Choose Acting Unit
+UI_CHOOSE_ACTOR_HINT,Multiple units can act now; choose one first
+UI_SELECT_ACTOR,Choose Actor

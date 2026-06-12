@@ -1,0 +1,54 @@
+[
+  {
+    "id": "rift_bug",
+    "name_key": "UNIT_RIFT_BUG_NAME",
+    "type_key": "ENEMY_TYPE_NORMAL_NAME",
+    "side": "enemy",
+    "position": 1,
+    "strength": 7,
+    "will": 3,
+    "max_hp": 18,
+    "action_interval": 5.0,
+    "ai_profile": "random",
+    "portrait_path": "res://image/Enemy unit/裂隙虫.png"
+  },
+  {
+    "id": "vine_beast",
+    "name_key": "UNIT_VINE_BEAST_NAME",
+    "type_key": "ENEMY_TYPE_NORMAL_NAME",
+    "side": "enemy",
+    "position": 2,
+    "strength": 8,
+    "will": 4,
+    "max_hp": 24,
+    "action_interval": 6.0,
+    "ai_profile": "lowest_hp",
+    "portrait_path": "res://image/Enemy unit/藤蔓兽.png"
+  },
+  {
+    "id": "tide_crab",
+    "name_key": "UNIT_TIDE_CRAB_NAME",
+    "type_key": "ENEMY_TYPE_DEFENDER_NAME",
+    "side": "enemy",
+    "position": 3,
+    "strength": 6,
+    "will": 8,
+    "max_hp": 30,
+    "action_interval": 4.0,
+    "ai_profile": "front",
+    "portrait_path": "res://image/Enemy unit/潮汐蟹.png"
+  },
+  {
+    "id": "ruin_skeleton",
+    "name_key": "UNIT_RUIN_SKELETON_NAME",
+    "type_key": "ENEMY_TYPE_NORMAL_NAME",
+    "side": "enemy",
+    "position": 4,
+    "strength": 9,
+    "will": 3,
+    "max_hp": 20,
+    "action_interval": 5.0,
+    "ai_profile": "random",
+    "portrait_path": "res://image/Enemy unit/遗迹骷髅.png"
+  }
+]
