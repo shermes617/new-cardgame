@@ -19,8 +19,8 @@ const CARD_REQUIRED_FIELDS: Array[String] = [
 	"charge_speed_modifier", "overload_speed_modifier", "target_side", "target_type", "effects"
 ]
 const CONFIG_REQUIRED_FIELDS: Array[String] = [
-	"energy_max", "initial_energy", "initial_hand_size", "hand_limit", "card_retention_time",
-	"draw_interval", "energy_recovery_interval", "initial_action_time", "same_priority_tiebreaker",
+	"energy_max", "initial_energy", "initial_hand_size", "hand_limit", "hand_reset_refresh_interval",
+	"energy_recovery_interval", "initial_action_time", "same_priority_tiebreaker",
 	"carry_ally_hp_between_battles"
 ]
 
@@ -58,6 +58,14 @@ func get_unit_definition(unit_id: String) -> Dictionary:
 
 func get_card(card_id: String) -> RefCounted:
 	return cards_by_id.get(card_id)
+
+
+func get_card_ids_by_category(category: String) -> Array[String]:
+	var result: Array[String] = []
+	for card_id in cards_by_id:
+		if cards_by_id[card_id].category == category:
+			result.append(card_id)
+	return result
 
 
 func get_unit_definitions(side: String) -> Array[Dictionary]:
@@ -152,8 +160,42 @@ func _register_cards(entries: Array) -> bool:
 			push_error("GameDatabase: card %s must define at least one effect" % card_id)
 			is_valid = false
 			continue
+		if not _validate_card_effects(card_id, entry["effects"]):
+			is_valid = false
+			continue
 
 		cards_by_id[card_id] = CardDataScript.new(entry)
+	return is_valid
+
+
+func _validate_card_effects(card_id: String, effects: Array) -> bool:
+	var is_valid := true
+	for effect in effects:
+		if effect is not Dictionary or not effect.has("effect_type"):
+			push_error("GameDatabase: card %s has an invalid effect" % card_id)
+			is_valid = false
+			continue
+		var effect_type: String = effect["effect_type"]
+		if effect_type in ["damage", "shield", "heal", "damage_to_shield"]:
+			if not effect.has("rate") or float(effect["rate"]) < 0.0:
+				push_error("GameDatabase: card %s effect %s needs a non-negative rate" % [card_id, effect_type])
+				is_valid = false
+		elif effect_type == "draw_card":
+			if not effect.has("amount") or int(effect["amount"]) <= 0:
+				push_error("GameDatabase: card %s draw effect needs a positive amount" % card_id)
+				is_valid = false
+		elif effect_type == "delayed_energy":
+			if (
+				not effect.has("amount")
+				or int(effect["amount"]) <= 0
+				or not effect.has("delay")
+				or float(effect["delay"]) < 0.0
+			):
+				push_error("GameDatabase: card %s delayed energy effect is invalid" % card_id)
+				is_valid = false
+		else:
+			push_error("GameDatabase: card %s has unsupported effect type: %s" % [card_id, effect_type])
+			is_valid = false
 	return is_valid
 
 
@@ -168,6 +210,12 @@ func _validate_config() -> bool:
 		return false
 	if int(battle_config["initial_hand_size"]) > int(battle_config["hand_limit"]):
 		push_error("GameDatabase: initial_hand_size cannot exceed hand_limit")
+		return false
+	if (
+		float(battle_config["hand_reset_refresh_interval"]) <= 0.0
+		or float(battle_config["energy_recovery_interval"]) <= 0.0
+	):
+		push_error("GameDatabase: battle timing intervals are invalid")
 		return false
 	if battle_config["same_priority_tiebreaker"] != "creation_order":
 		push_error("GameDatabase: unsupported same_priority_tiebreaker")

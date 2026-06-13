@@ -2,12 +2,16 @@ class_name ActionValidator
 extends RefCounted
 
 
-static func can_select_card(state: RefCounted, card: RefCounted) -> bool:
+static func can_select_card(state: RefCounted, card: RefCounted, card_instance_id: String = "") -> bool:
 	var actor: RefCounted = state.get_unit(state.current_actor_id)
+	var hand_card: RefCounted = state.get_hand_card(card_instance_id)
+	var has_card: bool = state.has_card_in_hand(card.id) if card_instance_id.is_empty() else (
+		hand_card != null and hand_card.card_id == card.id
+	)
 	return (
 		actor != null
 		and actor.is_alive()
-		and state.hand_ids.has(card.id)
+		and has_card
 		and state.energy >= card.cost
 	)
 

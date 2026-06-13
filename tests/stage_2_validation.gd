@@ -69,13 +69,13 @@ func _run_validation() -> void:
 	assert(not priority_queue.events[0].id.is_empty(), "Stage 2: event id should be generated")
 
 	var charge_state: RefCounted = BattleSetupScript.create_initial_state(database)
-	charge_state.hand_ids.append("heavy_strike")
 	var charge_flow: RefCounted = BattleFlowScript.new(charge_state, database)
 	charge_flow.initialize_events()
+	charge_state.draw_pile_ids.push_front("heavy_strike")
+	var heavy_card: RefCounted = charge_flow.deck_manager.draw_one()
 	charge_flow.choose_actor("arthur")
-	var heavy_index: int = charge_state.hand_ids.size() - 1
 	charge_flow.submit_player_request(
-		ActionRequestScript.new("arthur", "card", "heavy_strike", ["rift_bug"], heavy_index)
+		ActionRequestScript.new("arthur", "card", "heavy_strike", ["rift_bug"], heavy_card.instance_id)
 	)
 	assert(
 		charge_flow.event_queue.get_events_at_time(1.0, "skill_execute", "ally").size() == 1,

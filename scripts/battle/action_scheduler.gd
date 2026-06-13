@@ -8,7 +8,8 @@ const ALLY_BASIC_SPEED_MODIFIER := -0.2
 
 
 static func schedule_player_request(
-	state: RefCounted, database: RefCounted, event_queue: RefCounted, request: RefCounted
+	state: RefCounted, database: RefCounted, event_queue: RefCounted, deck_manager: RefCounted,
+	energy_manager: RefCounted, request: RefCounted
 ) -> void:
 	var actor: RefCounted = state.get_unit(request.actor_id)
 	if request.action_type == "basic_attack":
@@ -24,13 +25,8 @@ static func schedule_player_request(
 		return
 
 	var card: RefCounted = database.get_card(request.card_id)
-	state.energy -= card.cost
-	var hand_index: int = request.hand_index
-	if hand_index >= 0 and hand_index < state.hand_ids.size():
-		state.hand_ids.remove_at(hand_index)
-	else:
-		state.hand_ids.erase(card.id)
-	state.discard_pile_ids.append(card.id)
+	energy_manager.spend(card.cost)
+	deck_manager.discard_hand_card(request.card_instance_id)
 
 	var execute_time: float = state.current_time + card.charge
 	event_queue.add_event(

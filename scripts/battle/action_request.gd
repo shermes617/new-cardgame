@@ -4,7 +4,7 @@ extends RefCounted
 var actor_id: String
 var action_type: String
 var card_id: String
-var hand_index: int
+var card_instance_id: String
 var target_ids: Array[String] = []
 
 
@@ -13,12 +13,12 @@ func _init(
 	p_action_type: String,
 	p_card_id: String = "",
 	p_target_ids: Array[String] = [],
-	p_hand_index: int = -1
+	p_card_instance_id: String = ""
 ) -> void:
 	actor_id = p_actor_id
 	action_type = p_action_type
 	card_id = p_card_id
-	hand_index = p_hand_index
+	card_instance_id = p_card_instance_id
 	target_ids.assign(p_target_ids)
 
 

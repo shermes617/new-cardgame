@@ -1,4 +1,15 @@
 key,en
+UI_RESET_HAND,Reset Hand
+UI_RESET_HAND_WAIT,Reset Unavailable
+UI_HAND_RESET_REFRESH_EVENT,Hand Reset Ready
+UI_GAIN_ENERGY_EVENT,Energy
+UI_VICTORY,Victory
+UI_DEFEAT,Defeat
+UI_CHOOSE_REWARD,Choose one card reward
+UI_DEFEAT_HINT,The expedition has ended
+UI_RESTART_RUN,Restart
+UI_COMPLETED_BATTLES,Completed Battles
+UI_DECK_SIZE,Deck Size
 UNIT_ARTHUR_NAME,Arthur
 UNIT_BERIN_NAME,Berin
 UNIT_CHLOE_NAME,Chloe

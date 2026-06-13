@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://brs2gmqkm5suh" path="res://scripts/battle/battle_scene_controller.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/battle/timeline_panel.tscn" id="2"]
 [ext_resource type="PackedScene" path="res://scenes/battle/action_panel.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/battle/battle_end_panel.tscn" id="4"]
 
 [sub_resource type="Gradient" id="BattleGradient"]
 offsets = PackedFloat32Array(0, 0, 1)
@@ -180,10 +181,16 @@ theme_override_font_sizes/font_size = 20
 text = "3 / 10"
 horizontal_alignment = 1
 
-[node name="HandScroll" type="ScrollContainer" parent="MainLayout/BottomBar" unique_id=372944794]
-custom_minimum_size = Vector2(750, 156)
+[node name="HandResetButton" type="Button" parent="MainLayout/BottomBar" unique_id=1622498898]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(112, 142)
 layout_mode = 2
-horizontal_scroll_mode = 0
+text = "UI_RESET_HAND"
+autowrap_mode = 2
+
+[node name="HandScroll" type="ScrollContainer" parent="MainLayout/BottomBar" unique_id=372944794]
+custom_minimum_size = Vector2(630, 156)
+layout_mode = 2
 vertical_scroll_mode = 0
 
 [node name="HandContainer" type="HBoxContainer" parent="MainLayout/BottomBar/HandScroll" unique_id=1788315791]
@@ -211,3 +218,16 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 30
 text = "0"
 horizontal_alignment = 1
+
+[node name="EndOverlay" type="CenterContainer" parent="." unique_id=1250430342]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="BattleEndPanel" parent="EndOverlay" unique_id=705494602 instance=ExtResource("4")]
+unique_name_in_owner = true
+layout_mode = 2

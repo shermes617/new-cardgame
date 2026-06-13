@@ -4,6 +4,8 @@ const GameDatabaseScript := preload("res://scripts/data/game_database.gd")
 const BattleSetupScript := preload("res://scripts/battle/battle_setup.gd")
 const PlayerActionControllerScript := preload("res://scripts/battle/player_action_controller.gd")
 const BattleFlowScript := preload("res://scripts/battle/battle_flow.gd")
+const GameRunStateScript := preload("res://scripts/models/game_run_state.gd")
+const RewardManagerScript := preload("res://scripts/battle/reward_manager.gd")
 const UnitSlotScene := preload("res://scenes/battle/unit_slot.tscn")
 const CardViewScene := preload("res://scenes/battle/card_view.tscn")
 
@@ -14,9 +16,13 @@ const CardViewScene := preload("res://scenes/battle/card_view.tscn")
 @onready var draw_pile_count: Label = %DrawPileCount
 @onready var discard_pile_count: Label = %DiscardPileCount
 @onready var energy_label: Label = %EnergyLabel
+@onready var hand_reset_button: Button = %HandResetButton
 @onready var action_panel: PanelContainer = %ActionPanel
+@onready var battle_end_panel: PanelContainer = %BattleEndPanel
 
 var database: RefCounted
+var run_state: RefCounted
+var reward_manager: RefCounted
 var battle_state: RefCounted
 var player_action_controller: RefCounted
 var battle_flow: RefCounted
@@ -28,15 +34,27 @@ func _ready() -> void:
 		push_error("BattleSceneController: failed to load game database")
 		return
 
-	battle_state = BattleSetupScript.create_initial_state(database)
+	run_state = GameRunStateScript.new()
+	run_state.initialize(database)
+	reward_manager = RewardManagerScript.new(database)
+	battle_end_panel.connect("reward_selected", _on_reward_selected)
+	battle_end_panel.connect("restart_requested", _on_restart_requested)
+	action_panel.basic_attack_pressed.connect(_on_basic_attack_pressed)
+	action_panel.cancel_pressed.connect(_on_cancel_pressed)
+	hand_reset_button.pressed.connect(_on_hand_reset_pressed)
+	_start_battle()
+
+
+func _start_battle() -> void:
+	battle_end_panel.call("hide_panel")
+	battle_state = BattleSetupScript.create_initial_state(database, run_state.inherited_ally_hp, run_state.deck_ids)
 	battle_flow = BattleFlowScript.new(battle_state, database)
 	player_action_controller = PlayerActionControllerScript.new(battle_state, database)
 	player_action_controller.selection_changed.connect(_refresh_interaction)
 	player_action_controller.request_created.connect(_on_request_created)
 	battle_flow.state_changed.connect(_refresh_view)
 	battle_flow.player_choice_required.connect(_refresh_interaction)
-	action_panel.basic_attack_pressed.connect(player_action_controller.select_basic_attack)
-	action_panel.cancel_pressed.connect(player_action_controller.cancel_selection)
+	battle_flow.battle_ended.connect(_on_battle_ended)
 	battle_flow.initialize_events()
 
 
@@ -44,11 +62,10 @@ func _refresh_view() -> void:
 	draw_pile_count.text = str(battle_state.draw_pile_ids.size())
 	discard_pile_count.text = str(battle_state.discard_pile_ids.size())
 	energy_label.text = "%d / %d" % [battle_state.energy, int(battle_state.config["energy_max"])]
+	hand_reset_button.text = tr("UI_RESET_HAND") if battle_state.hand_reset_available else tr("UI_RESET_HAND_WAIT")
 	_display_units()
 	_display_hand()
-	timeline_panel.call(
-		"display_timeline", battle_state.current_time, battle_flow.event_queue.events, database
-	)
+	timeline_panel.call("display_timeline", battle_state.current_time, battle_flow.event_queue.events, database)
 	_refresh_interaction()
 
 
@@ -72,52 +89,37 @@ func _display_units() -> void:
 
 func _display_hand() -> void:
 	_clear_container(hand_container)
-	var hand_index := 0
-	for card_id in battle_state.hand_ids:
+	for hand_card in battle_state.hand_cards:
 		var card_view: Node = CardViewScene.instantiate()
 		hand_container.add_child(card_view)
-		card_view.call("display_card", database.get_card(card_id), hand_index)
+		card_view.call("display_card", database.get_card(hand_card.card_id), hand_card)
 		card_view.card_pressed.connect(player_action_controller.select_card)
-		hand_index += 1
 
 
 func _refresh_interaction() -> void:
+	var interaction_enabled: bool = not bool(battle_flow.is_ended)
+	hand_reset_button.disabled = not interaction_enabled or not battle_state.hand_reset_available
 	for unit_slot in ally_container.get_children():
 		var choosing_actor: bool = battle_state.current_actor_id.is_empty()
-		unit_slot.call(
-			"set_interaction_state",
-			unit_slot.unit_id == battle_state.current_actor_id,
-			_is_unit_selectable(unit_slot.unit_id),
-			"UI_SELECT_ACTOR" if choosing_actor else "UI_SELECT_TARGET"
-		)
+		var unit_enabled: bool = interaction_enabled and _is_unit_selectable(unit_slot.unit_id)
+		var button_key := "UI_SELECT_ACTOR" if choosing_actor else "UI_SELECT_TARGET"
+		unit_slot.call("set_interaction_state", unit_slot.unit_id == battle_state.current_actor_id, unit_enabled, button_key)
 	for unit_slot in enemy_container.get_children():
-		unit_slot.call(
-			"set_interaction_state",
-			false,
-			player_action_controller.valid_target_ids.has(unit_slot.unit_id)
-		)
+		var target_enabled: bool = interaction_enabled and player_action_controller.valid_target_ids.has(unit_slot.unit_id)
+		unit_slot.call("set_interaction_state", false, target_enabled)
 	for card_view in hand_container.get_children():
-		card_view.call(
-			"set_interaction_state",
-			player_action_controller.is_card_selected(card_view.card_id, card_view.hand_index),
-			player_action_controller.can_select_card(card_view.card_id)
-		)
+		var card_enabled: bool = interaction_enabled and player_action_controller.can_select_card(card_view.card_id, card_view.card_instance_id)
+		var card_selected: bool = player_action_controller.is_card_selected(card_view.card_id, card_view.card_instance_id)
+		card_view.call("set_interaction_state", card_selected, card_enabled)
 
 	var actor: RefCounted = battle_state.get_unit(battle_state.current_actor_id)
 	var action_name: String = _get_selected_action_name()
-	var request_text: String = (
-		player_action_controller.latest_request.call("describe")
-		if player_action_controller.latest_request != null
-		else ""
-	)
-	action_panel.call(
-		"display_state",
-		tr(actor.name_key) if actor != null else "",
-		action_name,
-		not player_action_controller.selected_action_type.is_empty(),
-		request_text,
-		actor != null
-	)
+	var request_text := ""
+	if player_action_controller.latest_request != null:
+		request_text = player_action_controller.latest_request.call("describe")
+	var actor_name := tr(actor.name_key) if actor != null else ""
+	var has_selection: bool = not player_action_controller.selected_action_type.is_empty()
+	action_panel.call("display_state", actor_name, action_name, has_selection, request_text, actor != null and interaction_enabled)
 
 
 func _get_selected_action_name() -> String:
@@ -134,6 +136,8 @@ func _on_request_created(request: RefCounted) -> void:
 
 
 func _on_unit_pressed(unit_id: String) -> void:
+	if battle_flow.is_ended:
+		return
 	if battle_state.current_actor_id.is_empty():
 		battle_flow.choose_actor(unit_id)
 	else:
@@ -144,6 +148,45 @@ func _is_unit_selectable(unit_id: String) -> bool:
 	if battle_state.current_actor_id.is_empty():
 		return battle_flow.available_actor_ids.has(unit_id)
 	return player_action_controller.valid_target_ids.has(unit_id)
+
+
+func _on_basic_attack_pressed() -> void:
+	if not battle_flow.is_ended:
+		player_action_controller.select_basic_attack()
+
+
+func _on_cancel_pressed() -> void:
+	if not battle_flow.is_ended:
+		player_action_controller.cancel_selection()
+
+
+func _on_hand_reset_pressed() -> void:
+	if battle_flow.is_ended:
+		return
+	player_action_controller.cancel_selection()
+	battle_flow.reset_hand()
+
+
+func _on_battle_ended(result: String) -> void:
+	player_action_controller.cancel_selection()
+	if result == "victory":
+		run_state.record_victory(battle_state)
+		battle_end_panel.call(
+			"show_victory", reward_manager.generate_rewards(), database,
+			run_state.completed_battles, run_state.deck_ids.size()
+		)
+	else:
+		battle_end_panel.call("show_defeat", run_state.completed_battles, run_state.deck_ids.size())
+
+
+func _on_reward_selected(card_id: String) -> void:
+	run_state.add_reward(card_id)
+	_start_battle()
+
+
+func _on_restart_requested() -> void:
+	run_state.initialize(database)
+	_start_battle()
 
 
 func _clear_container(container: Container) -> void:

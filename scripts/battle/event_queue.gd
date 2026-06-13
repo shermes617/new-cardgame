@@ -22,6 +22,10 @@ func pop_next_event() -> RefCounted:
 	return null if events.is_empty() else events.pop_front()
 
 
+func clear() -> void:
+	events.clear()
+
+
 func get_events_at_time(time: float, event_type: String = "", side: String = "") -> Array[RefCounted]:
 	var result: Array[RefCounted] = []
 	for event in events:

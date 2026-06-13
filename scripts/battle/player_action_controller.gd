@@ -11,7 +11,7 @@ var battle_state: RefCounted
 var database: RefCounted
 var selected_action_type: String = ""
 var selected_card_id: String = ""
-var selected_hand_index: int = -1
+var selected_card_instance_id: String = ""
 var valid_target_ids: Array[String] = []
 var latest_request: RefCounted
 
@@ -27,19 +27,19 @@ func select_basic_attack() -> void:
 		return
 	selected_action_type = "basic_attack"
 	selected_card_id = ""
-	selected_hand_index = -1
+	selected_card_instance_id = ""
 	valid_target_ids = ActionValidatorScript.get_valid_target_ids(battle_state, "enemy")
 	selection_changed.emit()
 
 
-func select_card(card_id: String, hand_index: int = -1) -> void:
+func select_card(card_id: String, card_instance_id: String = "") -> void:
 	var card: RefCounted = database.get_card(card_id)
-	if card == null or not ActionValidatorScript.can_select_card(battle_state, card):
+	if card == null or not ActionValidatorScript.can_select_card(battle_state, card, card_instance_id):
 		return
 
 	selected_action_type = "card"
 	selected_card_id = card_id
-	selected_hand_index = hand_index
+	selected_card_instance_id = card_instance_id
 	valid_target_ids = ActionValidatorScript.get_valid_target_ids(battle_state, card.target_side)
 	selection_changed.emit()
 
@@ -58,26 +58,27 @@ func select_target(target_id: String) -> void:
 func cancel_selection() -> void:
 	selected_action_type = ""
 	selected_card_id = ""
-	selected_hand_index = -1
+	selected_card_instance_id = ""
 	valid_target_ids.clear()
 	latest_request = null
 	selection_changed.emit()
 
 
-func is_card_selected(card_id: String, hand_index: int = -1) -> bool:
+func is_card_selected(card_id: String, card_instance_id: String = "") -> bool:
 	if selected_action_type != "card" or selected_card_id != card_id:
 		return false
-	return selected_hand_index == hand_index if selected_hand_index >= 0 else true
+	return selected_card_instance_id == card_instance_id if not selected_card_instance_id.is_empty() else true
 
 
-func can_select_card(card_id: String) -> bool:
+func can_select_card(card_id: String, card_instance_id: String = "") -> bool:
 	var card: RefCounted = database.get_card(card_id)
-	return card != null and ActionValidatorScript.can_select_card(battle_state, card)
+	return card != null and ActionValidatorScript.can_select_card(battle_state, card, card_instance_id)
 
 
 func _create_request(target_ids: Array[String]) -> void:
 	latest_request = ActionRequestScript.new(
-		battle_state.current_actor_id, selected_action_type, selected_card_id, target_ids, selected_hand_index
+		battle_state.current_actor_id, selected_action_type, selected_card_id, target_ids,
+		selected_card_instance_id
 	)
 	request_created.emit(latest_request)
 	selection_changed.emit()

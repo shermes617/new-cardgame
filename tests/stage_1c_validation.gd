@@ -30,9 +30,13 @@ func _run_validation() -> void:
 	assert(controller.latest_request.target_ids == ["rift_bug"], "Stage 1C: wrong basic attack target")
 
 	controller.cancel_selection()
-	controller.select_card("strike", 2)
-	assert(controller.is_card_selected("strike", 2), "Stage 1C: selected card copy not highlighted")
-	assert(not controller.is_card_selected("strike", 1), "Stage 1C: wrong card copy highlighted")
+	state.draw_pile_ids.push_front("strike")
+	var added_strike_one: RefCounted = flow.deck_manager.draw_one()
+	state.draw_pile_ids.push_front("strike")
+	var added_strike_two: RefCounted = flow.deck_manager.draw_one()
+	controller.select_card("strike", added_strike_two.instance_id)
+	assert(controller.is_card_selected("strike", added_strike_two.instance_id))
+	assert(not controller.is_card_selected("strike", added_strike_one.instance_id))
 	controller.select_target("vine_beast")
 	assert(controller.latest_request.card_id == "strike", "Stage 1C: wrong card request")
 	assert(controller.latest_request.target_ids == ["vine_beast"], "Stage 1C: wrong card target")
@@ -43,13 +47,15 @@ func _run_validation() -> void:
 	assert(controller.selected_action_type.is_empty(), "Stage 1C: unaffordable card was selected")
 
 	state.energy = 3
-	state.hand_ids.append("group_defense")
-	controller.select_card("group_defense")
+	state.draw_pile_ids.push_front("group_defense")
+	var group_card: RefCounted = flow.deck_manager.draw_one()
+	controller.select_card("group_defense", group_card.instance_id)
 	assert(controller.latest_request.target_ids.size() == 4, "Stage 1C: group card needs all allies")
 
 	controller.cancel_selection()
-	state.hand_ids.append("energy_supply")
-	controller.select_card("energy_supply")
+	state.draw_pile_ids.push_front("energy_supply")
+	var energy_card: RefCounted = flow.deck_manager.draw_one()
+	controller.select_card("energy_supply", energy_card.instance_id)
 	assert(controller.latest_request.target_ids.is_empty(), "Stage 1C: no-target card has targets")
 
 	var scene: Control = BattleScene.instantiate()
