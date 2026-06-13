@@ -36,6 +36,7 @@ static func resolve_skill(
 				)
 			"damage_to_shield":
 				_resolve_damage_to_shield(state, actor, event.target_ids, float(effect["rate"]))
+	deck_manager.discard_card(card.id)
 
 
 static func _resolve_damage(

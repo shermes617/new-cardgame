@@ -86,7 +86,15 @@ func _run_validation() -> void:
 		"Stage 2: overload should start after charge"
 	)
 	assert(charge_state.energy == 2, "Stage 2: card energy was not deducted")
-	assert(charge_state.discard_pile_ids.has("heavy_strike"), "Stage 2: used card not discarded")
+	assert(
+		not charge_state.discard_pile_ids.has("heavy_strike"),
+		"Stage 2: charged card must not be discarded before execution"
+	)
+	assert(
+		charge_flow.event_queue.get_events_at_time(1.0, "skill_execute", "ally")[0].card_instance_id
+		== heavy_card.instance_id,
+		"Stage 2: executing card instance was not retained"
+	)
 
 	print("Stage 2 validation passed")
 	quit()

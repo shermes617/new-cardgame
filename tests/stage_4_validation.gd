@@ -5,6 +5,7 @@ const BattleSetupScript := preload("res://scripts/battle/battle_setup.gd")
 const BattleFlowScript := preload("res://scripts/battle/battle_flow.gd")
 const BattleEventScript := preload("res://scripts/battle/battle_event.gd")
 const BattleResolverScript := preload("res://scripts/battle/battle_resolver.gd")
+const ActionRequestScript := preload("res://scripts/battle/action_request.gd")
 
 
 func _init() -> void:
@@ -16,6 +17,7 @@ func _run_validation() -> void:
 	assert(database.load_all(), "Stage 4: database validation failed")
 	_validate_energy(database)
 	_validate_card_effects(database)
+	_validate_draw_tactics_order(database)
 	print("Stage 4 validation passed")
 	quit()
 
@@ -67,6 +69,41 @@ func _validate_card_effects(database: RefCounted) -> void:
 	_resolve_card(state, database, flow, "arthur", "iron_wave", ["rift_bug"])
 	assert(enemy.hp == 16, "Stage 4: iron slash wave health damage is wrong")
 	assert(actor.shield == 2, "Stage 4: iron slash wave shield must use health damage")
+
+
+func _validate_draw_tactics_order(database: RefCounted) -> void:
+	var state: RefCounted = BattleSetupScript.create_initial_state(database)
+	var flow: RefCounted = BattleFlowScript.new(state, database)
+	flow.initialize_events(19)
+	state.hand_cards.clear()
+	state.draw_pile_ids.assign(["draw_tactics"])
+	state.discard_pile_ids.assign(["strike", "defend"])
+	var draw_tactics: RefCounted = flow.deck_manager.draw_one()
+	assert(state.draw_pile_ids.is_empty(), "Stage 4: draw tactics setup draw pile must be empty")
+	flow.choose_actor("lia")
+	flow.submit_player_request(
+		ActionRequestScript.new("lia", "card", "draw_tactics", [], draw_tactics.instance_id)
+	)
+	assert(state.hand_cards.size() == 2, "Stage 4: draw tactics should draw the reshuffled cards")
+	assert(
+		not state.has_card_in_hand("draw_tactics"),
+		"Stage 4: draw tactics must not draw itself during its effect"
+	)
+	assert(state.discard_pile_ids == ["draw_tactics"], "Stage 4: draw tactics must discard after drawing")
+
+	var shortage_state: RefCounted = BattleSetupScript.create_initial_state(database)
+	var shortage_flow: RefCounted = BattleFlowScript.new(shortage_state, database)
+	shortage_flow.initialize_events(21)
+	shortage_state.hand_cards.clear()
+	shortage_state.draw_pile_ids.assign(["draw_tactics"])
+	shortage_state.discard_pile_ids.assign(["strike"])
+	var shortage_card: RefCounted = shortage_flow.deck_manager.draw_one()
+	shortage_flow.choose_actor("lia")
+	shortage_flow.submit_player_request(
+		ActionRequestScript.new("lia", "card", "draw_tactics", [], shortage_card.instance_id)
+	)
+	assert(shortage_state.hand_cards.size() == 1, "Stage 4: draw should stop when all cards are drawn")
+	assert(shortage_state.discard_pile_ids == ["draw_tactics"])
 
 
 func _resolve_card(

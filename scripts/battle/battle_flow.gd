@@ -155,7 +155,19 @@ func _find_action_event(actor_id: String) -> RefCounted:
 func _cancel_dead_unit_events() -> void:
 	for unit in state.allies + state.enemies:
 		if not unit.is_alive():
+			_discard_canceled_cards(unit.id)
 			event_queue.cancel_unit_events(unit.id)
+
+
+func _discard_canceled_cards(unit_id: String) -> void:
+	for event in event_queue.events:
+		if (
+			event.unit_id == unit_id
+			and event.event_type == "skill_execute"
+			and event.side == "ally"
+			and not event.card_instance_id.is_empty()
+		):
+			deck_manager.discard_card(event.card_id)
 
 
 func _check_battle_end() -> bool:

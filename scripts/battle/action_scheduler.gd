@@ -26,12 +26,13 @@ static func schedule_player_request(
 
 	var card: RefCounted = database.get_card(request.card_id)
 	energy_manager.spend(card.cost)
-	deck_manager.discard_hand_card(request.card_instance_id)
+	deck_manager.remove_hand_card(request.card_instance_id)
 
 	var execute_time: float = state.current_time + card.charge
 	event_queue.add_event(
 		BattleEventScript.new(
-			"", execute_time, "skill_execute", "ally", actor.id, card.id, request.target_ids
+			"", execute_time, "skill_execute", "ally", actor.id, card.id, request.target_ids, 0,
+			request.card_instance_id
 		)
 	)
 	_schedule_next_action(state, event_queue, actor, execute_time + card.get_actual_overload(actor.speed))

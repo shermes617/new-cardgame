@@ -49,13 +49,23 @@ func draw_one() -> RefCounted:
 	return hand_card
 
 
-func discard_hand_card(instance_id: String) -> String:
+func remove_hand_card(instance_id: String) -> String:
 	var hand_card: RefCounted = state.get_hand_card(instance_id)
 	if hand_card == null:
 		return ""
 	state.hand_cards.erase(hand_card)
-	state.discard_pile_ids.append(hand_card.card_id)
 	return hand_card.card_id
+
+
+func discard_card(card_id: String) -> void:
+	if not card_id.is_empty():
+		state.discard_pile_ids.append(card_id)
+
+
+func discard_hand_card(instance_id: String) -> String:
+	var card_id := remove_hand_card(instance_id)
+	discard_card(card_id)
+	return card_id
 
 
 func discard_all_hand_cards() -> void:

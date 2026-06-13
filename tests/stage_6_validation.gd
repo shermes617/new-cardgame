@@ -55,14 +55,27 @@ func _validate_dead_unit_event_cancellation(database: RefCounted) -> void:
 		BattleEventScript.new("", 3.0, "skill_execute", "enemy", "rift_bug", "enemy_basic_attack", ["arthur"])
 	)
 	flow.event_queue.add_event(BattleEventScript.new("", 6.0, "unit_action", "enemy", "rift_bug"))
+	flow.event_queue.add_event(
+		BattleEventScript.new(
+			"", 3.0, "skill_execute", "ally", "chloe", "heavy_strike", ["rift_bug"], 0, "pending_card"
+		)
+	)
 	state.get_unit("rift_bug").hp = 1
+	state.get_unit("chloe").hp = 0
 	var kill_event: RefCounted = BattleEventScript.new(
 		"", 0.0, "skill_execute", "ally", "arthur", "basic_attack", ["rift_bug"]
 	)
 	BattleResolverScript.resolve_skill(state, database, kill_event, flow.deck_manager, flow.energy_manager)
 	flow.call("_cancel_dead_unit_events")
 	for event in flow.event_queue.events:
-		assert(event.unit_id != "rift_bug", "Stage 6: dead unit retained a future event")
+		assert(
+			event.unit_id != "rift_bug" and event.unit_id != "chloe",
+			"Stage 6: dead unit retained a future event"
+		)
+	assert(
+		state.discard_pile_ids.has("heavy_strike"),
+		"Stage 6: canceled pending card was not discarded"
+	)
 
 
 func _validate_no_legal_targets(database: RefCounted) -> void:
