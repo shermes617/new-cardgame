@@ -1,44 +1,46 @@
 [
   {
-    "id": "strike",
-    "name_key": "CARD_STRIKE_NAME",
-    "description_key": "CARD_STRIKE_DESC",
-    "category": "starter",
-    "type": "attack",
-    "cost": 1,
-    "charge": 0.0,
-    "overload": 4.0,
-    "charge_speed_modifier": 0.0,
-    "overload_speed_modifier": -0.2,
-    "target_side": "enemy",
-    "target_type": "single",
-    "effects": [
-      {
-        "effect_type": "damage",
-        "attribute": "strength",
-        "rate": 1.0
-      }
-    ]
+	"id": "strike",
+	"name_key": "CARD_STRIKE_NAME",
+	"description_key": "CARD_STRIKE_DESC",
+	"image_path": "res://image/card image/打击.png",
+	"category": "starter",
+	"type": "attack",
+	"cost": 1,
+	"charge": 0.0,
+	"overload": 4.5,
+	"charge_speed_modifier": 0.0,
+	"overload_speed_modifier": -0.2,
+	"target_side": "enemy",
+	"target_type": "single",
+	"effects": [
+	  {
+		"effect_type": "damage",
+		"attribute": "strength",
+		"rate": 1.0
+	  }
+	]
   },
   {
-    "id": "defend",
-    "name_key": "CARD_DEFEND_NAME",
-    "description_key": "CARD_DEFEND_DESC",
-    "category": "starter",
-    "type": "defense",
-    "cost": 1,
-    "charge": 0.0,
-    "overload": 4.0,
-    "charge_speed_modifier": 0.0,
-    "overload_speed_modifier": -0.2,
-    "target_side": "ally",
-    "target_type": "single",
-    "effects": [
-      {
-        "effect_type": "shield",
-        "attribute": "will",
-        "rate": 1.0
-      }
-    ]
+	"id": "defend",
+	"name_key": "CARD_DEFEND_NAME",
+	"description_key": "CARD_DEFEND_DESC",
+	"image_path": "res://image/card image/防御.png",
+	"category": "starter",
+	"type": "defense",
+	"cost": 1,
+	"charge": 0.0,
+	"overload": 4.5,
+	"charge_speed_modifier": 0.0,
+	"overload_speed_modifier": -0.2,
+	"target_side": "ally",
+	"target_type": "single",
+	"effects": [
+	  {
+		"effect_type": "shield",
+		"attribute": "will",
+		"rate": 1.0
+	  }
+	]
   }
 ]

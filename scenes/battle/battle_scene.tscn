@@ -4,8 +4,8 @@
 [ext_resource type="PackedScene" path="res://scenes/battle/timeline_panel.tscn" id="2"]
 [ext_resource type="PackedScene" path="res://scenes/battle/action_panel.tscn" id="3"]
 [ext_resource type="PackedScene" path="res://scenes/battle/battle_end_panel.tscn" id="4"]
-[ext_resource type="PackedScene" path="res://scenes/battle/hand_panel.tscn" id="5"]
-[ext_resource type="Theme" path="res://resources/ui/battle_theme.tres" id="6"]
+[ext_resource type="PackedScene" uid="uid://xgium54tln3o" path="res://scenes/battle/hand_panel.tscn" id="5"]
+[ext_resource type="Theme" uid="uid://cgqrg5c08ox6m" path="res://resources/ui/battle_theme.tres" id="6"]
 
 [sub_resource type="Gradient" id="BattleGradient"]
 offsets = PackedFloat32Array(0, 0, 1)
@@ -124,6 +124,7 @@ layout_mode = 2
 
 [node name="HandPanel" parent="MainLayout" unique_id=1539060846 instance=ExtResource("5")]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 196)
 layout_mode = 2
 
 [node name="EndOverlay" type="CenterContainer" parent="." unique_id=1250430342]

@@ -49,9 +49,15 @@ func _validate_card_effects(database: RefCounted) -> void:
 	var ally: RefCounted = state.get_unit("chloe")
 	ally.take_damage(20)
 	_resolve_card(state, database, flow, "lia", "healing_light", ["chloe"])
-	assert(ally.hp == 13, "Stage 4: healing light should heal eight health")
+	assert(ally.hp == 15, "Stage 4: healing light should heal ten health")
 	ally.heal(100)
 	assert(ally.hp == ally.max_hp, "Stage 4: healing must not exceed maximum health")
+
+	for group_ally in state.allies:
+		group_ally.take_damage(10)
+	_resolve_card(state, database, flow, "lia", "group_heal", ["arthur", "berin", "chloe", "lia"])
+	for group_ally in state.allies:
+		assert(group_ally.hp == group_ally.max_hp - 3, "Stage 4: group heal amount is incorrect")
 
 	state.draw_pile_ids.assign(["strike", "defend"])
 	var hand_before: int = state.hand_cards.size()
@@ -62,14 +68,6 @@ func _validate_card_effects(database: RefCounted) -> void:
 	var energy_events: Array[RefCounted] = flow.event_queue.get_events_at_time(6.0, "gain_energy")
 	assert(energy_events.size() == 1, "Stage 4: delayed energy event is missing")
 	assert(energy_events[0].amount == 2, "Stage 4: delayed energy amount is wrong")
-
-	var enemy: RefCounted = state.get_unit("rift_bug")
-	enemy.shield = 10
-	var actor: RefCounted = state.get_unit("arthur")
-	_resolve_card(state, database, flow, "arthur", "iron_wave", ["rift_bug"])
-	assert(enemy.hp == 16, "Stage 4: iron slash wave health damage is wrong")
-	assert(actor.shield == 2, "Stage 4: iron slash wave shield must use health damage")
-
 
 func _validate_draw_tactics_order(database: RefCounted) -> void:
 	var state: RefCounted = BattleSetupScript.create_initial_state(database)

@@ -8,10 +8,10 @@ func _init() -> void:
 	var database: RefCounted = GameDatabaseScript.new()
 	assert(database.load_all(), "Stage 1A: database validation failed")
 	assert(database.units_by_id.size() == 8, "Stage 1A: expected 8 units")
-	assert(database.cards_by_id.size() == 12, "Stage 1A: expected 12 cards")
+	assert(database.cards_by_id.size() == 11, "Stage 1A: expected 11 cards")
 	assert(database.starter_deck_ids.size() == 10, "Stage 1A: expected a 10-card starter deck")
 	assert(
-		is_equal_approx(database.get_card("quick_strike").get_actual_overload(5), 1.0),
+		is_equal_approx(database.get_card("quick_strike").get_actual_overload(5), 2.0),
 		"Stage 1A: actual overload calculation is incorrect"
 	)
 

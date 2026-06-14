@@ -15,7 +15,7 @@ const UNIT_REQUIRED_FIELDS: Array[String] = [
 	"id", "name_key", "side", "position", "strength", "will", "max_hp", "portrait_path"
 ]
 const CARD_REQUIRED_FIELDS: Array[String] = [
-	"id", "name_key", "description_key", "category", "type", "cost", "charge", "overload",
+	"id", "name_key", "description_key", "image_path", "category", "type", "cost", "charge", "overload",
 	"charge_speed_modifier", "overload_speed_modifier", "target_side", "target_type", "effects"
 ]
 const CONFIG_REQUIRED_FIELDS: Array[String] = [
@@ -158,6 +158,10 @@ func _register_cards(entries: Array) -> bool:
 			continue
 		if entry["effects"] is not Array or entry["effects"].is_empty():
 			push_error("GameDatabase: card %s must define at least one effect" % card_id)
+			is_valid = false
+			continue
+		if not ResourceLoader.exists(entry["image_path"]):
+			push_error("GameDatabase: image not found for card %s: %s" % [card_id, entry["image_path"]])
 			is_valid = false
 			continue
 		if not _validate_card_effects(card_id, entry["effects"]):

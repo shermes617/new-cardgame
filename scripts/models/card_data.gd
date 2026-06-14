@@ -4,6 +4,7 @@ extends RefCounted
 var id: String
 var name_key: String
 var description_key: String
+var image_path: String
 var category: String
 var type: String
 var cost: int
@@ -20,6 +21,7 @@ func _init(data: Dictionary) -> void:
 	id = data["id"]
 	name_key = data["name_key"]
 	description_key = data["description_key"]
+	image_path = data["image_path"]
 	category = data["category"]
 	type = data["type"]
 	cost = int(data["cost"])
