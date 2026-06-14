@@ -1,23 +1,38 @@
-extends VBoxContainer
+extends Control
 
+const ALLY_COLOR := Color(0.42, 0.75, 1.0)
+const ENEMY_COLOR := Color(1.0, 0.42, 0.34)
+const RESOURCE_COLOR := Color(0.45, 0.9, 0.65)
+
+@onready var portrait_frame: PanelContainer = %PortraitFrame
+@onready var portrait: TextureRect = %Portrait
 @onready var icon_label: Label = %IconLabel
-@onready var name_label: Label = %NameLabel
 @onready var time_label: Label = %TimeLabel
 
 
-func display_event(event: RefCounted, display_time: float, name_key: String) -> void:
+func display_event(
+	event: RefCounted, display_time: float, name_key: String, portrait_path: String
+) -> void:
+	var accent_color: Color = ALLY_COLOR if event.side == "ally" else ENEMY_COLOR
 	if event.event_type == "gain_energy":
+		accent_color = ALLY_COLOR
 		icon_label.text = "E"
-		icon_label.modulate = Color(0.42, 0.76, 1.0)
-		name_label.modulate = Color(0.62, 0.82, 1.0)
 	elif event.event_type == "hand_reset_refresh":
+		accent_color = RESOURCE_COLOR
 		icon_label.text = "R"
-		icon_label.modulate = Color(0.45, 0.9, 0.65)
-		name_label.modulate = Color(0.65, 0.9, 0.75)
+	elif event.event_type == "skill_execute":
+		icon_label.text = "S"
 	else:
-		var is_ally: bool = event.side == "ally"
-		icon_label.text = "A" if event.event_type == "unit_action" else "S"
-		icon_label.modulate = Color(0.35, 0.72, 1.0) if is_ally else Color(1.0, 0.42, 0.34)
-		name_label.modulate = Color(0.65, 0.82, 1.0) if is_ally else Color(1.0, 0.67, 0.6)
-	name_label.text = tr(name_key)
+		icon_label.text = "A"
+
+	portrait_frame.modulate = accent_color
+	icon_label.modulate = accent_color
+	if portrait_path.is_empty():
+		portrait.texture = null
+		portrait_frame.self_modulate = Color(0.25, 0.3, 0.38, 1)
+	else:
+		portrait.texture = load(portrait_path)
+		portrait_frame.self_modulate = Color.WHITE
 	time_label.text = "%.1f" % display_time
+	tooltip_text = "%s  %.1f" % [tr(name_key), display_time]
+

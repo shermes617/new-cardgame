@@ -7,14 +7,15 @@ signal card_pressed(card_id: String, card_instance_id: String)
 @onready var cost_label: Label = %CostLabel
 @onready var charge_label: Label = %ChargeLabel
 @onready var overload_label: Label = %OverloadLabel
-@onready var select_button: Button = %SelectButton
-
 var card_id: String = ""
 var card_instance_id: String = ""
+var interaction_enabled: bool = false
 
 
 func _ready() -> void:
-	select_button.pressed.connect(_on_select_button_pressed)
+	gui_input.connect(_on_gui_input)
+	mouse_entered.connect(_on_mouse_entered)
+	mouse_exited.connect(_on_mouse_exited)
 
 
 func display_card(card: RefCounted, hand_card: RefCounted) -> void:
@@ -28,10 +29,26 @@ func display_card(card: RefCounted, hand_card: RefCounted) -> void:
 
 
 func set_interaction_state(is_selected: bool, is_enabled: bool) -> void:
-	select_button.disabled = not is_enabled
-	select_button.text = tr("UI_SELECTED") if is_selected else tr("UI_SELECT")
-	modulate = Color(1.08, 1.08, 1.08) if is_selected else Color.WHITE
+	interaction_enabled = is_enabled
+	position.y = -5.0 if is_selected else 0.0
+	modulate = Color(1.12, 1.08, 0.92) if is_selected else (Color.WHITE if is_enabled else Color(0.62, 0.62, 0.66))
 
 
-func _on_select_button_pressed() -> void:
-	card_pressed.emit(card_id, card_instance_id)
+func _on_gui_input(event: InputEvent) -> void:
+	if (
+		interaction_enabled
+		and event is InputEventMouseButton
+		and event.button_index == MOUSE_BUTTON_LEFT
+		and event.pressed
+	):
+		card_pressed.emit(card_id, card_instance_id)
+
+
+func _on_mouse_entered() -> void:
+	if interaction_enabled and position.y == 0.0:
+		position.y = -3.0
+
+
+func _on_mouse_exited() -> void:
+	if position.y == -3.0:
+		position.y = 0.0

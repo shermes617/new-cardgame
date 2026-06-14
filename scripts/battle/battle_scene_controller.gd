@@ -7,16 +7,11 @@ const BattleFlowScript := preload("res://scripts/battle/battle_flow.gd")
 const GameRunStateScript := preload("res://scripts/models/game_run_state.gd")
 const RewardManagerScript := preload("res://scripts/battle/reward_manager.gd")
 const UnitSlotScene := preload("res://scenes/battle/unit_slot.tscn")
-const CardViewScene := preload("res://scenes/battle/card_view.tscn")
 
 @onready var timeline_panel: PanelContainer = %TimelinePanel
 @onready var ally_container: HBoxContainer = %AllyContainer
 @onready var enemy_container: HBoxContainer = %EnemyContainer
-@onready var hand_container: HBoxContainer = %HandContainer
-@onready var draw_pile_count: Label = %DrawPileCount
-@onready var discard_pile_count: Label = %DiscardPileCount
-@onready var energy_label: Label = %EnergyLabel
-@onready var hand_reset_button: Button = %HandResetButton
+@onready var hand_panel: PanelContainer = %HandPanel
 @onready var action_panel: PanelContainer = %ActionPanel
 @onready var battle_end_panel: PanelContainer = %BattleEndPanel
 
@@ -41,7 +36,8 @@ func _ready() -> void:
 	battle_end_panel.connect("restart_requested", _on_restart_requested)
 	action_panel.basic_attack_pressed.connect(_on_basic_attack_pressed)
 	action_panel.cancel_pressed.connect(_on_cancel_pressed)
-	hand_reset_button.pressed.connect(_on_hand_reset_pressed)
+	hand_panel.card_pressed.connect(_on_card_pressed)
+	hand_panel.reset_pressed.connect(_on_hand_reset_pressed)
 	_start_battle()
 
 
@@ -59,12 +55,8 @@ func _start_battle() -> void:
 
 
 func _refresh_view() -> void:
-	draw_pile_count.text = str(battle_state.draw_pile_ids.size())
-	discard_pile_count.text = str(battle_state.discard_pile_ids.size())
-	energy_label.text = "%d / %d" % [battle_state.energy, int(battle_state.config["energy_max"])]
-	hand_reset_button.text = tr("UI_RESET_HAND") if battle_state.hand_reset_available else tr("UI_RESET_HAND_WAIT")
 	_display_units()
-	_display_hand()
+	hand_panel.call("display_state", battle_state, database)
 	timeline_panel.call("display_timeline", battle_state.current_time, battle_flow.event_queue.events, database)
 	_refresh_interaction()
 
@@ -87,30 +79,21 @@ func _display_units() -> void:
 		unit_slot.unit_pressed.connect(_on_unit_pressed)
 
 
-func _display_hand() -> void:
-	_clear_container(hand_container)
-	for hand_card in battle_state.hand_cards:
-		var card_view: Node = CardViewScene.instantiate()
-		hand_container.add_child(card_view)
-		card_view.call("display_card", database.get_card(hand_card.card_id), hand_card)
-		card_view.card_pressed.connect(player_action_controller.select_card)
-
-
 func _refresh_interaction() -> void:
 	var interaction_enabled: bool = not bool(battle_flow.is_ended)
-	hand_reset_button.disabled = not interaction_enabled or not battle_state.hand_reset_available
 	for unit_slot in ally_container.get_children():
 		var choosing_actor: bool = battle_state.current_actor_id.is_empty()
 		var unit_enabled: bool = interaction_enabled and _is_unit_selectable(unit_slot.unit_id)
-		var button_key := "UI_SELECT_ACTOR" if choosing_actor else "UI_SELECT_TARGET"
-		unit_slot.call("set_interaction_state", unit_slot.unit_id == battle_state.current_actor_id, unit_enabled, button_key)
+		unit_slot.call(
+			"set_interaction_state", unit_slot.unit_id == battle_state.current_actor_id, unit_enabled
+		)
 	for unit_slot in enemy_container.get_children():
 		var target_enabled: bool = interaction_enabled and player_action_controller.valid_target_ids.has(unit_slot.unit_id)
 		unit_slot.call("set_interaction_state", false, target_enabled)
-	for card_view in hand_container.get_children():
-		var card_enabled: bool = interaction_enabled and player_action_controller.can_select_card(card_view.card_id, card_view.card_instance_id)
-		var card_selected: bool = player_action_controller.is_card_selected(card_view.card_id, card_view.card_instance_id)
-		card_view.call("set_interaction_state", card_selected, card_enabled)
+	hand_panel.call(
+		"refresh_interaction", player_action_controller, interaction_enabled,
+		battle_state.hand_reset_available
+	)
 
 	var actor: RefCounted = battle_state.get_unit(battle_state.current_actor_id)
 	var action_name: String = _get_selected_action_name()
@@ -153,6 +136,11 @@ func _is_unit_selectable(unit_id: String) -> bool:
 func _on_basic_attack_pressed() -> void:
 	if not battle_flow.is_ended:
 		player_action_controller.select_basic_attack()
+
+
+func _on_card_pressed(card_id: String, card_instance_id: String) -> void:
+	if not battle_flow.is_ended:
+		player_action_controller.select_card(card_id, card_instance_id)
 
 
 func _on_cancel_pressed() -> void:

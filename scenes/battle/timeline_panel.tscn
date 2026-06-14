@@ -72,29 +72,34 @@ grow_horizontal = 2
 alignment = 1
 
 [node name="Tick0" type="Label" parent="Margin/Layout/TimelineArea/TickLabels"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "0"
 
 [node name="Tick5" type="Label" parent="Margin/Layout/TimelineArea/TickLabels"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "5"
 horizontal_alignment = 1
 
 [node name="Tick10" type="Label" parent="Margin/Layout/TimelineArea/TickLabels"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "10"
 horizontal_alignment = 1
 
 [node name="Tick15" type="Label" parent="Margin/Layout/TimelineArea/TickLabels"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "15"
 horizontal_alignment = 1
 
 [node name="Tick20" type="Label" parent="Margin/Layout/TimelineArea/TickLabels"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "20"
@@ -109,3 +114,11 @@ offset_top = 18.0
 offset_bottom = 102.0
 grow_horizontal = 2
 mouse_filter = 2
+
+[node name="CurrentTimeLine" type="ColorRect" parent="Margin/Layout/TimelineArea"]
+layout_mode = 0
+offset_top = 14.0
+offset_right = 2.0
+offset_bottom = 102.0
+mouse_filter = 2
+color = Color(0.35, 0.72, 1, 0.72)
